@@ -63,13 +63,13 @@ if __name__ == '__main__':
     args_list = sys.argv
     if args_list:
         try:
-            port = args_list[2]
+            port = int(args_list[2])
         except:
             print('[!] Incorrect command, we use an default port')
             print('[!] Error: Example run command: python server.py --port 8080')
     print('starting server on port {0}...'.format(port))
 
-    server_address = ('localhost', 8080)
+    server_address = ('localhost', port)
     httpd = HTTPServer(server_address, MyHandler)
 
     httpd.serve_forever()
