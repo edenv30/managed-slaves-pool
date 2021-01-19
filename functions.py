@@ -27,7 +27,7 @@ def available_slaves(amount, slaves):
             a_slaves.append(slave["ip"])
         if cnt == amount:
             return True, a_slaves
-    return False, a_slaves
+    return False, []
 #assign slaves
 def update_duration_slaves(slaves_dictionary, duration, amount):
     slaves = []
