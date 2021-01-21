@@ -1,6 +1,6 @@
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from functions import slaves_assign, parse_url, available_slaves, update_duration_slaves, come_back, send_response_, cmd_args
-import time, json, threading, sys, math
+import time, json, threading, sys
 
 slaves_dictionary = slaves_assign()
 callback_collection = []
