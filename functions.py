@@ -22,9 +22,9 @@ def parse_url(self):
     return
 #check if have enough slaves available and return the available slaves
 def available_slaves(amount, slaves):
+    a_slaves = []
     if 0 < amount <= 10 and len(slaves) > 0: # edge cases
         cnt = 0
-        a_slaves = []
         for slave in slaves:
             if slave["duration"] == 0:
                 cnt += 1
@@ -47,18 +47,17 @@ def update_duration_slaves(slaves_dictionary, amount, duration):
 def come_back(slaves_dictionary, amount, duration):
     if check_variables(slaves_dictionary, amount, duration):
         slaves = []
-        bad_slaves = []
+        o_slaves = []
         my_list = sorted(slaves_dictionary, key=lambda k: k['duration'])
         for slave in my_list:
             if 0 < slave["duration"] <= duration: #possible slaves
                 slaves.append(slave)
             elif slave["duration"] != 0:
-                bad_slaves.append(slave)
+                o_slaves.append(slave)
             if len(slaves) == amount:
                 return slave["duration"]
-    print('bad_slaves', bad_slaves)
-    print('slaves', slaves)
-    return bad_slaves[0]["duration"]
+        return o_slaves[0]["duration"]
+    return
 # send response to the client
 def send_response_(self, status_code, content_type, msg):
     self.send_response(status_code)
