@@ -1,6 +1,6 @@
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from functions import slaves_assign, parse_url, available_slaves, update_duration_slaves, come_back, send_response_, cmd_args
-import time, json, threading, sys
+import time, json, threading, sys, math
 
 slaves_dictionary = slaves_assign()
 callback_collection = []
@@ -8,11 +8,11 @@ callback_collection = []
 def lifecycle():
     global slaves_dictionary
     while True:
-        time.sleep(1)
+        time.sleep(1.5)
         for slave in slaves_dictionary:
             if slave["duration"] != 0:
                 # sub = math.floor(time.time() - slave["unit-test"])
-                # print(sub)
+                # print(slave["ip"], sub)
                 slave["duration"] -= 1
 
 t = threading.Thread(target=lifecycle)
@@ -35,18 +35,23 @@ class MyHandler(BaseHTTPRequestHandler):
                 if not available:
                     new_amount = amount - len(slaves)
                     slaves_come_back = come_back(slaves_dictionary, new_amount, duration)
-                    msg = json.dumps({"slaves": slaves, "come_back": slaves_come_back })
-                    send_response_(self, 200, 'application/json', msg)
+                    if slaves_come_back is None:
+                        msg = '[!] Error'
+                        print(msg)
+                        send_response_(self, 400, 'text/plain', msg)
+                    else:
+                        msg = json.dumps({"slaves": [], "come_back": slaves_come_back })
+                        send_response_(self, 200, 'application/json', msg)
                     return
                 else:
-                    slaves_dictionary, slaves = update_duration_slaves(self, slaves_dictionary, amount, duration)
+                    slaves_dictionary, slaves = update_duration_slaves(slaves_dictionary, amount, duration)
                     msg = json.dumps({"slaves": slaves})
                     send_response_(self, 200, 'application/json', msg)
                     return
         except Exception as error:
-                msg = '[!] Error: {0}\n You must check your request'.format(error)
-                print(msg)
-                send_response_(self, 400, 'text/plain', msg)
+            msg = '[!] Error: {0}\n You must check your request'.format(error)
+            print(msg)
+            send_response_(self, 400, 'text/plain', msg)
 
 if __name__ == '__main__':
     args_list = sys.argv
