@@ -1,7 +1,6 @@
 from http.server import BaseHTTPRequestHandler, HTTPServer
-from functions import slaves_assign, parse_url, available_slaves, update_duration_slaves, come_back, send_response_
+from functions import slaves_assign, parse_url, available_slaves, update_duration_slaves, come_back, send_response_, cmd_args
 import time, json, threading, sys
-import logging
 
 slaves_dictionary = slaves_assign()
 callback_collection = []
@@ -51,18 +50,8 @@ class MyHandler(BaseHTTPRequestHandler):
                 send_response_(self, 400, 'text/plain', msg)
 
 if __name__ == '__main__':
-    port = 8080
     args_list = sys.argv
-    if args_list:
-        try:
-            if args_list[1] == "--port" and args_list[2].isnumeric() :
-                port = int(args_list[2])
-            else:
-                print('[!] Incorrect command, we use an default port')
-        except Exception as e:
-            print('[!] Incorrect command, we use an default port')
-            print('[!] Error: Example run command: python server.py --port 8080')
-            logging.exception(e)
+    port = cmd_args(args_list)
     print('starting server on port {0}...'.format(port))
 
     server_address = ('localhost', port)

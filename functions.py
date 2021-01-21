@@ -1,4 +1,5 @@
 import urllib.parse as urlparse
+import logging
 
 # initial slaves in list of dictionaries
 def slaves_assign():
@@ -53,3 +54,15 @@ def send_response_(self, status_code, content_type, msg):
     self.send_header('Content-Type', content_type)
     self.end_headers()
     self.wfile.write(bytes(msg, "utf8"))
+# check cmd
+def cmd_args(args_list):
+    port = 8080
+    len_args = len(args_list)
+    if args_list:
+        try:
+            if len_args == 3:
+                if args_list[1] == "--port" and args_list[2].isnumeric():
+                    port = int(args_list[2])
+            return port
+        except Exception as e:
+            logging.exception(e)
