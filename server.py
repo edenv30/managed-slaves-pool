@@ -22,9 +22,9 @@ class MyHandler(BaseHTTPRequestHandler):
 
     def do_GET(self):
         global slaves_dictionary
-        (path, params) = parse_url(self)
-        if path == '/get_slaves':
-            try:
+        try:
+            (path, params) = parse_url(self)
+            if path == '/get_slaves':
                 amount = int(params['amount'][0])
                 duration = int(params['duration'][0])
                 if amount > 10:
@@ -32,7 +32,6 @@ class MyHandler(BaseHTTPRequestHandler):
                     print(msg)
                     send_response_(self, 400, 'text/plain', msg)
                 available, slaves = available_slaves(amount, slaves_dictionary)
-
                 if not available:
                     new_amount = amount - len(slaves)
                     slaves_come_back = come_back(slaves_dictionary, new_amount, duration)
@@ -40,11 +39,11 @@ class MyHandler(BaseHTTPRequestHandler):
                     send_response_(self, 200, 'application/json', msg)
                     return
                 else:
-                    slaves_dictionary, slaves = update_duration_slaves(slaves_dictionary, duration, amount)
+                    slaves_dictionary, slaves = update_duration_slaves(self, slaves_dictionary, amount, duration)
                     msg = json.dumps({"slaves": slaves})
                     send_response_(self, 200, 'application/json', msg)
                     return
-            except Exception as error:
+        except Exception as error:
                 msg = '[!] Error: {0}\n You must check your request'.format(error)
                 print(msg)
                 send_response_(self, 400, 'text/plain', msg)

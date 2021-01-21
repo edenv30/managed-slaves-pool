@@ -14,40 +14,47 @@ def slaves_assign():
     return slaves
 #extract the path(get_slaves) and the params (amount & duration)
 def parse_url(self):
-    url = self.path
-    path = urlparse.urlparse(url).path
-    params = urlparse.parse_qs(urlparse.urlparse(url).query)
-    return path, params
+    if self: # edge cases
+        url = self.path
+        path = urlparse.urlparse(url).path
+        params = urlparse.parse_qs(urlparse.urlparse(url).query)
+        return path, params
+    return
 #check if have enough slaves available and return the available slaves
 def available_slaves(amount, slaves):
-    cnt = 0
-    a_slaves = []
-    for slave in slaves:
-        if slave["duration"] == 0:
-            cnt += 1
-            a_slaves.append(slave["ip"])
-        if cnt == amount:
-            return True, a_slaves
+    if 0 < amount < 10 and len(slaves) > 0: # edge cases
+        cnt = 0
+        a_slaves = []
+        for slave in slaves:
+            if slave["duration"] == 0:
+                cnt += 1
+                a_slaves.append(slave["ip"])
+            if cnt == amount and len(a_slaves)>0: # edge cases if len(a_slaves) > 0:
+                return True, a_slaves
     return False, []
 #assign slaves
-def update_duration_slaves(slaves_dictionary, duration, amount):
-    slaves = []
-    for slave in slaves_dictionary:
-        if slave["duration"] == 0:
-            slave["duration"] = duration + 1
-            # slave["unit-test"] = time.time() # unit test
-            slaves.append(slave["ip"])
-        if len(slaves) == amount: return slaves_dictionary, slaves
-#retuan the duration time that the client needs to come back again
+def update_duration_slaves(self, slaves_dictionary, amount, duration):
+    if check_variables(slaves_dictionary, amount, duration):
+        slaves = []
+        for slave in slaves_dictionary:
+            if slave["duration"] == 0:
+                slave["duration"] = duration + 1
+                # slave["unit-test"] = time.time() # unit test
+                slaves.append(slave["ip"])
+            if len(slaves) == amount: return slaves_dictionary, slaves
+    return
+#return the duration time that the client needs to come back again
 def come_back(slaves_dictionary, amount, duration):
-    slaves = []
-    my_list = sorted(slaves_dictionary, key=lambda k: k['duration'])
-    for slave in my_list:
-        if slave["duration"] <= duration and slave["duration"] != 0:
-            slaves.append(slave)
-        if len(slaves) == amount:
-            break
-    return slaves[amount-1]['duration']
+    if check_variables(slaves_dictionary, amount, duration):
+        slaves = []
+        my_list = sorted(slaves_dictionary, key=lambda k: k['duration'])
+        for slave in my_list:
+            if slave["duration"] <= duration and slave["duration"] != 0:
+                slaves.append(slave)
+            if len(slaves) == amount:
+                break
+        return slaves[amount-1]['duration']
+    return
 # send response to the client
 def send_response_(self, status_code, content_type, msg):
     self.send_response(status_code)
@@ -66,3 +73,11 @@ def cmd_args(args_list):
             return port
         except Exception as e:
             logging.exception(e)
+# edge cases - dictionary , amount , duration
+def check_variables(slaves_dictionary, amount, duration):
+    if len(slaves_dictionary) > 0 and 0 < amount < 10 and duration >= 0:
+        return True
+    return False
+# checking list if empty
+def is_empty(list_check):
+    return True if len(list_check) == 0 else False
